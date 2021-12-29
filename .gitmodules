@@ -1,0 +1,3 @@
+[submodule "depthai"]
+	path = depthai
+	url = https://github.com/geaxgx/depthai_blazepose.git

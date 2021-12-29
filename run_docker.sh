@@ -1,0 +1,1 @@
+docker run -it --rm -v `pwd`:/content --workdir /content openvino/ubuntu20_dev:latest bash
