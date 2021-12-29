@@ -16,5 +16,8 @@ variables.index
 .idea
 
 raw_data
+**.egg-info
+
+preview.jpg
 
 **/__pycache__/**

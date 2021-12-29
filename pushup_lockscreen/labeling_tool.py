@@ -34,7 +34,7 @@ class ImageCapture(Thread):
         # For the rgb camera output, we want the XLink stream to be named "rgb"
         self.xout_rgb.setStreamName("rgb")
         # Linking camera preview to XLink input, so that the frames will be sent to host
-        self.cam_rgb.preview.link(self.xout_rgb.input)
+        self.cam_rgb.video.link(self.xout_rgb.input)
 
         # Get ready to keep track of the current frame
         self.frame = None
@@ -42,6 +42,8 @@ class ImageCapture(Thread):
 
         self.label = label
         self.save_path = Path(save_path)
+        if not os.path.exists(self.save_path / self.label):
+            os.makedirs(self.save_path / self.label)
         self.order_numbers = self.get_order_numbers()
 
         # Play some custom confiromation sounds
@@ -145,7 +147,7 @@ if __name__ == '__main__':
     stop_listening(wait_for_stop=False)
 
     # Update the clearml dataset so we have a new version to keep track of
-    update_clearml_dataset(args.save_path)
+    # update_clearml_dataset(args.save_path)
 
     # Call of the camera
     image_grabber.running = False
