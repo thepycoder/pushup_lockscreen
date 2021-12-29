@@ -34,7 +34,7 @@ class ImageCapture(Thread):
         # For the rgb camera output, we want the XLink stream to be named "rgb"
         self.xout_rgb.setStreamName("rgb")
         # Linking camera preview to XLink input, so that the frames will be sent to host
-        self.cam_rgb.video.link(self.xout_rgb.input)
+        self.cam_rgb.preview.link(self.xout_rgb.input)
 
         # Get ready to keep track of the current frame
         self.frame = None
@@ -62,7 +62,7 @@ class ImageCapture(Thread):
             filenames = sorted(os.listdir(self.save_path / folder), key=lambda x: int(os.path.splitext(x)[0]))
             print(filenames)
             if filenames:
-                highest_nr = int(Path(filenames[-1]).stem)
+                highest_nr = int(Path(filenames[-1]).stem) + 1
             else:
                 highest_nr = 0
             order_number_dict[folder] = highest_nr
@@ -83,10 +83,14 @@ class ImageCapture(Thread):
 
                     if frame is not None:
                         self.frame = frame
+                        cv2.imshow("preview", frame)
+                        # at any time, you can press "q" and exit the main loop, therefore exiting the program itself
+                        if cv2.waitKey(1) == ord('q'):
+                            break
 
     def save_screenshot(self):
-        self.order_numbers[self.label] += 1
         cv2.imwrite(f"raw_data/{self.label}/{self.order_numbers[self.label]}.jpg", self.frame)
+        self.order_numbers[self.label] += 1
 
 
 # this is called from the background thread
@@ -147,7 +151,7 @@ if __name__ == '__main__':
     stop_listening(wait_for_stop=False)
 
     # Update the clearml dataset so we have a new version to keep track of
-    # update_clearml_dataset(args.save_path)
+    update_clearml_dataset(args.save_path)
 
     # Call of the camera
     image_grabber.running = False

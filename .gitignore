@@ -19,5 +19,6 @@ raw_data
 **.egg-info
 
 preview.jpg
+landmarks
 
 **/__pycache__/**
