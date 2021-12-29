@@ -15,4 +15,6 @@ variables.index
 .vscode
 .idea
 
+raw_data
+
 **/__pycache__/**

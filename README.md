@@ -19,3 +19,9 @@ clearml-data create --project <PROJECT_NAME> --name <DATASET_NAME>
 
 Add the PROJECT_NAME and DATASET_NAME variables you chose to the config file located at <INPUT REQUIRED>
 as well as the dataset ID
+
+### Raspberry Pi
+To use playaudio, install gstreamer bindings:
+```
+sudo apt install python3-gst-1.0
+```

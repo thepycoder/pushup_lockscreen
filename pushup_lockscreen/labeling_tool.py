@@ -26,6 +26,7 @@ class ImageCapture(Thread):
 
         # First, we want the Color camera as the output
         self.cam_rgb = self.pipeline.createColorCamera()
+        self.cam_rgb.setPreviewSize(300, 300)
         self.cam_rgb.setInterleaved(False)
 
         # XLinkOut is a "way out" from the device. Any data you want to transfer to host need to be send via XLink
@@ -33,7 +34,7 @@ class ImageCapture(Thread):
         # For the rgb camera output, we want the XLink stream to be named "rgb"
         self.xout_rgb.setStreamName("rgb")
         # Linking camera preview to XLink input, so that the frames will be sent to host
-        self.cam_rgb.video.link(self.xout_rgb.input)
+        self.cam_rgb.preview.link(self.xout_rgb.input)
 
         # Get ready to keep track of the current frame
         self.frame = None
@@ -56,7 +57,8 @@ class ImageCapture(Thread):
     def get_order_numbers(self):
         order_number_dict = dict()
         for folder in next(os.walk(self.save_path))[1]:
-            filenames = sorted(os.listdir(self.save_path / folder))
+            filenames = sorted(os.listdir(self.save_path / folder), key=lambda x: int(os.path.splitext(x)[0]))
+            print(filenames)
             if filenames:
                 highest_nr = int(Path(filenames[-1]).stem)
             else:
@@ -81,8 +83,8 @@ class ImageCapture(Thread):
                         self.frame = frame
 
     def save_screenshot(self):
-        cv2.imwrite(f"raw_data/{self.label}/{self.order_numbers[self.label]}.jpg", self.frame)
         self.order_numbers[self.label] += 1
+        cv2.imwrite(f"raw_data/{self.label}/{self.order_numbers[self.label]}.jpg", self.frame)
 
 
 # this is called from the background thread
@@ -104,28 +106,9 @@ def callback(recognizer, audio):
 
 
 def update_clearml_dataset(save_path):
-    # dataset = Dataset.create(dataset_project=CLEARML_PROJECT, dataset_name=CLEARML_DATASET_NAME)
-    # dataset.sync_folder(local_path=save_path)
-    # dataset.upload()
-    # dataset.finalize()
-    try:
-        # Get mutable would have solved this issue
-        # Getting a dataset implicitly creates a new one if it doesn't exist
-        # Add an argument to get to create one
-        old_dataset_version = Dataset.get(dataset_project=CLEARML_PROJECT, dataset_name=CLEARML_DATASET_NAME)
-    except ValueError:
-        old_dataset_version = None
-    if old_dataset_version:
-        dataset = Dataset.create(dataset_project=CLEARML_PROJECT, dataset_name=CLEARML_DATASET_NAME, parent_datasets=[old_dataset_version])
-    else:
-        dataset = Dataset.create(dataset_project=CLEARML_PROJECT, dataset_name=CLEARML_DATASET_NAME)
+    dataset = Dataset.get(dataset_project=CLEARML_PROJECT, dataset_name=CLEARML_DATASET_NAME, auto_create=True, writable_copy=True)
     dataset.add_files(path=save_path, dataset_path=save_path)
-    dataset.upload()
     dataset.finalize(auto_upload=True)
-
-    # You can add explicit add files
-    # Implicit, not a huge fan
-    # Add auto_upload to finalize task
 
 
 if __name__ == '__main__':
