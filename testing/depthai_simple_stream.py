@@ -18,7 +18,7 @@ xout_rgb = pipeline.createXLinkOut()
 # For the rgb camera output, we want the XLink stream to be named "rgb"
 xout_rgb.setStreamName("rgb")
 # Linking camera preview to XLink input, so that the frames will be sent to host
-cam_rgb.video.link(xout_rgb.input)
+cam_rgb.preview.link(xout_rgb.input)
 
 # Pipeline is now finished, and we need to find an available device to run our pipeline
 # we are using context manager here that will dispose the device after we stop using it
