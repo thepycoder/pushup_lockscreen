@@ -1,3 +1,4 @@
+import imgaug as ia
 from imgaug import augmenters as iaa
 from imgaug.augmentables import Keypoint, KeypointsOnImage
 import cv2
@@ -5,7 +6,8 @@ import numpy as np
 
 
 class LandMarkAugmentation:
-    def __init__(self):
+    def __init__(self, seed=42):
+        ia.seed(seed)
         self.imgaug_pipeline = self.create_imgaug()
         self.max_jitter_multiplier = 5
         self.jitter_coef = 10 / self.max_jitter_multiplier  # absolute maximum deviation in pixels
@@ -62,7 +64,7 @@ class LandMarkAugmentation:
         # Now run the actualy augmentation
         image_list_aug, keypoints_aug = self.imgaug_pipeline(images=image_list, keypoints=jittered_keypoints)
 
-        return image_list_aug, keypoints_aug, original_keypoints
+        return image_list_aug, keypoints_aug
 
         # for i, (image_aug, kpsoi_aug) in enumerate(zip(image_list_aug, keypoints_aug)):
         #     result = np.hstack([
@@ -73,4 +75,4 @@ class LandMarkAugmentation:
 
 
 augmenter = LandMarkAugmentation()
-augmented_images, augmented_landmarks, original_landmarks = augmenter.get_augmented_batch(images, np.zeros(-1, 33, 2))
+augmented_images, augmented_landmarks = augmenter.get_augmented_batch([np.zeros((300, 300, 3))]*20, np.zeros((20, 14, 2)))
