@@ -11,11 +11,13 @@ import os
 class Preprocessor:
     def __init__(self, image_dataset_path, landmark_dataset_path, calibration_image):
         self.detector = BlazeposeDepthai(
-            input_src=calibration_image, 
+            input_src=calibration_image,
+            pd_score_thresh=0.5,
+            lm_score_thresh=0.5,
             pd_model=None,
-            lm_model='/home/pi/pushup_lockscreen/depthai/models/pose_landmark_heavy_sh4.blob',
-            smoothing=False,   
-            xyz=False,            
+            lm_model='depthai/models/pose_landmark_heavy_sh4.blob',
+            smoothing=False,
+            xyz=False,
             crop=False,
             internal_fps=None,
             internal_frame_height=300,
@@ -25,8 +27,8 @@ class Preprocessor:
         )
 
         self.renderer = BlazeposeRenderer(
-            self.detector, 
-            show_3d=False, 
+            self.detector,
+            show_3d=False,
             output=None
         )
 
@@ -34,7 +36,7 @@ class Preprocessor:
         self.landmark_dataset_path = Path(landmark_dataset_path)
 
         self.augmenter = LandMarkAugmentation()
-    
+
     def process_images(self):
         print(f"Walking {self.image_dataset_path}")
         frames = []
@@ -58,7 +60,7 @@ class Preprocessor:
                     # cv2.imwrite(str(new_save_location / image), frame)
 
         # self.augmenter.get_augmented_batch(frames, bodies)
-    
+
     def cleanup(self):
         self.renderer.exit()
         self.detector.exit()
