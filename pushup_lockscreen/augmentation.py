@@ -39,10 +39,10 @@ class LandMarkAugmentation:
         original_keypoints = []
         jittered_keypoints = []
 
-        for image, landmarks_object in zip(image_list, landmark_list):
+        for image, landmarks_array in zip(image_list, landmark_list):
             original_keypoints_instance = []
             jittered_keypoints_instance = []
-            for i, point in enumerate(landmarks_object.landmarks[:33,:2]):
+            for i, point in enumerate(landmarks_array[:33,:2]):
                 # First Filter
                 if i in self.keypoints_to_keep:
                     # Then augment using jitter
@@ -65,12 +65,14 @@ class LandMarkAugmentation:
         # Now run the actualy augmentation
         image_list_aug, keypoints_aug = self.imgaug_pipeline(images=image_list, keypoints=jittered_keypoints)
 
-        for i, (image_aug, kpsoi_aug) in enumerate(zip(image_list_aug, keypoints_aug)):
-            result = np.hstack([
-                original_keypoints[i].draw_on_image(image_list[i], size=7),
-                kpsoi_aug.draw_on_image(image_aug, size=7)
-            ])
-            cv2.imwrite(f'augmented_images/test_keypoints_{i}.jpg', result)
+        return image_list_aug, keypoints_aug
+
+        # for i, (image_aug, kpsoi_aug) in enumerate(zip(image_list_aug, keypoints_aug)):
+        #     result = np.hstack([
+        #         original_keypoints[i].draw_on_image(image_list[i], size=7),
+        #         kpsoi_aug.draw_on_image(image_aug, size=7)
+        #     ])
+        #     cv2.imwrite(f'augmented_images/test_keypoints_{i}.jpg', result)
 
 
 # for batch_idx in range(1000):
