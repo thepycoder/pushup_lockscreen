@@ -11,6 +11,28 @@ import global_config
 plt.ion()
 
 
+class PushupCounter:
+    def __init__(self):
+        self.history = []
+        self.primed = False
+        self.count = 0
+
+    def trigger_logic(self):
+        print(sum(self.history[:10]))
+        if len(self.history) > 10 and sum(self.history[:10]) == 20:
+            print('Primed!')
+            self.primed = True
+        if self.primed:
+            if self.history[-1] == 2 and self.history[-2] == 1:
+                print("Pushup Detected!")
+                self.count += 1
+        print(f'Current count: {self.count}')
+
+    def update_counter(self, prediction):
+        self.history.append(prediction)
+        self.trigger_logic()
+
+
 class PushupLockscreen:
     def __init__(self):
         self.landmark_camera = PreprocessorVideo()
@@ -23,6 +45,7 @@ class PushupLockscreen:
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
         plt.show()
+        self.counter = PushupCounter()
 
         print(matplotlib.get_backend())
 
@@ -43,14 +66,18 @@ class PushupLockscreen:
                 # Run inference on selected landmarks
                 prediction = self.inference_engine.predict(selected_landmarks)
 
-                # Print or plot prediction
-                self.predictions.append(prediction)
-                prediction_list = [x[0] + 1 for x in list(self.predictions)]
-                prediction_list.extend([0] * (250 - len(prediction_list)))
-                print(prediction_list)
-                self.line.set_ydata(prediction_list)
-                self.fig.canvas.draw()
-                self.fig.canvas.flush_events()
+                # Counter logic
+                self.counter.update_counter(prediction)
+            else:
+                prediction = [-1]
+
+            # Print or plot prediction
+            self.predictions.append(prediction)
+            prediction_list = [x[0] + 1 for x in list(self.predictions)]
+            prediction_list.extend([0] * (250 - len(prediction_list)))
+            self.line.set_ydata(prediction_list)
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
 
 
 if __name__ == '__main__':
