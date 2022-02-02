@@ -8,13 +8,13 @@ import cv2
 import os
 
 
-class Preprocessor:
+class PreprocessorImage:
     def __init__(self, image_dataset_path, landmark_dataset_path, calibration_image):
         self.detector = BlazeposeDepthai(
             input_src=calibration_image,
             pd_score_thresh=0.5,
             lm_score_thresh=0.5,
-            pd_model=None,
+            pd_model='depthai/models/pose_detection_sh4.blob',
             lm_model='depthai/models/pose_landmark_heavy_sh4.blob',
             smoothing=False,
             xyz=False,
@@ -64,6 +64,6 @@ class Preprocessor:
 
 
 if __name__ == '__main__':
-    preprocessor = Preprocessor('raw_data', 'landmarks', 'raw_data/pushup_up/1.jpg')
+    preprocessor = PreprocessorImage('raw_data', 'landmarks', 'raw_data/pushup_up/1.jpg')
     preprocessor.process_images()
     preprocessor.cleanup()

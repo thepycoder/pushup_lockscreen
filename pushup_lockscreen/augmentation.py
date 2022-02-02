@@ -12,7 +12,6 @@ class LandMarkAugmentation:
         self.max_jitter_multiplier = 5
         self.jitter_coef = 10 / self.max_jitter_multiplier  # absolute maximum deviation in pixels
 
-
     def get_jitter_normal(self):
         jitter = np.random.normal()
         if jitter > self.max_jitter_multiplier:
@@ -20,7 +19,6 @@ class LandMarkAugmentation:
         elif jitter < -self.max_jitter_multiplier:
             jitter = -self.max_jitter_multiplier
         return jitter
-
 
     def create_imgaug(self):
         seq = iaa.Sequential([
@@ -34,7 +32,6 @@ class LandMarkAugmentation:
             )
         ])
         return seq
-
 
     def get_augmented_batch(self, image_list, landmark_list):
         original_keypoints = []
