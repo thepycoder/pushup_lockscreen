@@ -21,7 +21,8 @@ from config import CLEARML_PROJECT, CLEARML_DATASET_NAME
 class ImageCapture(Thread):
     def __init__(self, save_path, label):
         Thread.__init__(self)
-        # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used and flows here
+        # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used
+        # and flows here
         self.pipeline = depthai.Pipeline()
 
         # First, we want the Color camera as the output
@@ -74,11 +75,13 @@ class ImageCapture(Thread):
             q_rgb = device.getOutputQueue("rgb")
 
             while self.running:
-                # we try to fetch the data from nn/rgb queues. tryGet will return either the data packet or None if there isn't any
+                # we try to fetch the data from nn/rgb queues. tryGet will return either the data packet or
+                # None if there isn't any
                 in_rgb = q_rgb.tryGet()
 
                 if in_rgb is not None:
-                    # If the packet from RGB camera is present, we're retrieving the frame in OpenCV format using getCvFrame
+                    # If the packet from RGB camera is present, we're retrieving the frame in OpenCV format
+                    # using getCvFrame
                     frame = in_rgb.getCvFrame()
 
                     if frame is not None:
@@ -119,7 +122,9 @@ def update_clearml_dataset(save_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Label some images from the OAK live on voice command.')
-    parser.add_argument('--label', help="Which label to start capturing. Can be 'test', 'pushup_up', 'pushup_down' or anything else, really, I'm not coding in error handling, I've got other stuff I should be doing.",
+    parser.add_argument('--label', help="Which label to start capturing. Can be 'test', 'pushup_up', 'pushup_down' "
+                                        "or anything else, really, I'm not coding in error handling, I've got other "
+                                        "stuff I should be doing.",
                         required=True)
     parser.add_argument('--save_path', help="Base folder in which to save images.",
                         default='raw_data')
@@ -157,4 +162,5 @@ if __name__ == '__main__':
     image_grabber.running = False
     image_grabber.join()
     # do some more unrelated things
-    time.sleep(2)  # we're not listening anymore, even though the background thread might still be running for a second or two while cleaning up and stopping
+    time.sleep(2)  # we're not listening anymore, even though the background thread might still be running for a second
+    # or two while cleaning up and stopping

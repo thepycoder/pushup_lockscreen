@@ -35,8 +35,6 @@ class Preprocessor:
         self.image_dataset_path = Path(image_dataset_path)
         self.landmark_dataset_path = Path(landmark_dataset_path)
 
-        self.augmenter = LandMarkAugmentation()
-
     def process_images(self):
         print(f"Walking {self.image_dataset_path}")
         frames = []
@@ -54,12 +52,11 @@ class Preprocessor:
                     frame, body = self.detector.next_frame()
                     frames.append(frame)
                     bodies.append(body)
-                    np.savetxt(f"{self.landmark_dataset_path / label / os.path.splitext(image)[0]}.csv", body.landmarks, delimiter=",")
+                    np.savetxt(f"{self.landmark_dataset_path / label / os.path.splitext(image)[0]}.csv",
+                               body.landmarks, delimiter=",")
                     # Body is a mediapipe body type
                     # frame = self.renderer.draw(frame, body)
                     # cv2.imwrite(str(new_save_location / image), frame)
-
-        # self.augmenter.get_augmented_batch(frames, bodies)
 
     def cleanup(self):
         self.renderer.exit()

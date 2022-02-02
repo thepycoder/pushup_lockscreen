@@ -1,5 +1,5 @@
 brotli==1.0.9
-clearml==1.1.5
+clearml~=1.1.5rc6
 ConfigParser==5.2.0
 cryptography==36.0.1
 Cython==0.29.26
@@ -32,3 +32,10 @@ wincertstore==0.2
 zipp==3.7.0
 ipykernel==6.6.1
 open3d==0.14.1
+
+opencv-python~=4.5.5.62
+argparse~=1.4.0
+blazeposedepthai~=0.0.0
+setuptools~=47.1.0
+numpy~=1.19.5
+scikit-learn~=1.0.2
