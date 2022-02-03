@@ -45,7 +45,7 @@ class LockscreenClient:
         self.client.connect(hostname='beast.local', username='victor')
 
     def lock(self):
-        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 i3lock')
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 i3lock &')
         print(stderr.readlines())
 
     def unlock(self):
