@@ -46,11 +46,10 @@ class LockscreenClient:
 
     def lock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 i3lock &')
-        print(stderr.readlines())
 
     def unlock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type fiehair5')
-        print(stderr)
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key KP_Enter')
 
 
 class PushupLockscreen:
