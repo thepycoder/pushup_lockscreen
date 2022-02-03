@@ -4,6 +4,7 @@ import numpy as np
 from collections import deque
 import matplotlib
 import cv2
+from paramiko.client import SSHClient
 
 from inference import Inference
 from landmark_online import PreprocessorVideo
@@ -12,9 +13,9 @@ import global_config
 
 plt.ion()
 
-WHITE = ('white')
-RED = ('red')
-GREEN = ('green')
+WHITE = 'white'
+RED = 'red'
+GREEN = 'green'
 
 
 class PushupCounter:
@@ -27,17 +28,29 @@ class PushupCounter:
         if self.history[-1] == 0:
             self.primed = False
         if len(self.history) > 10 and sum(self.history[-10:]) == 20:
-            print('Primed!')
             self.primed = True
         if self.primed:
             if self.history[-1] == 2 and sum(self.history[-4:-1]) == 3:
-                print("Pushup Detected!")
                 self.count += 1
-        print(f'Current count: {self.count}')
 
     def update_counter(self, prediction):
         self.history.append(prediction)
         self.trigger_logic()
+
+
+class LockscreenClient:
+    def __init__(self):
+        self.client = SSHClient()
+        self.client.load_system_host_keys()
+        self.client.connect(hostname='beast.local', username='victor')
+
+    def lock(self):
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 i3lock')
+        print(stderr.readlines())
+
+    def unlock(self):
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
+        print(stderr)
 
 
 class PushupLockscreen:
@@ -65,9 +78,11 @@ class PushupLockscreen:
         self.predictions = deque(maxlen=250)
         self.counter = PushupCounter()
 
-        print(matplotlib.get_backend())
+        self.lockscreen = LockscreenClient()
+        self.required_pushups = 1
 
     def run(self):
+        self.lockscreen.lock()
         while True:
 
             event, values = self.window.read(timeout=20)
@@ -95,7 +110,13 @@ class PushupLockscreen:
             # Counter logic
             self.counter.update_counter(prediction)
 
+            # Update the RPI screen
             self.update_gui(frame, prediction)
+
+            # Check if unlock criteria is met
+            if self.counter.count >= self.required_pushups:
+                break
+        self.lockscreen.unlock()
 
     def update_gui(self, frame, prediction):
         # Print or plot prediction
