@@ -54,6 +54,11 @@ class LockscreenClient:
             print("Detecting Mic in Use, BAILING")
             sys.exit(0)
 
+        # Then move the mouse to make sure the screen is on
+        time.sleep(0.2)
+        stdin, stdout, stderr = self.client.exec_command('xdotool mousemove_relative 0 100')
+
+        time.sleep(0.2)
         # Then lock the screen
         stdin, stdout, stderr = self.client.exec_command(
             'DISPLAY=:0 i3lock -i /home/victor/Projects/clearML/pushup_lockscreen/images/screensaver.png'
