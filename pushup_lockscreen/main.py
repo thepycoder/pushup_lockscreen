@@ -12,6 +12,10 @@ import global_config
 
 plt.ion()
 
+WHITE = ('white')
+RED = ('red')
+GREEN = ('green')
+
 
 class PushupCounter:
     def __init__(self):
@@ -40,22 +44,25 @@ class PushupLockscreen:
     def __init__(self):
         sg.theme('Black')
         # define the window layout
-        layout = [[sg.Text('Pushups: 0', key='counter', size=(40, 1), justification='center', font='Helvetica 35')],
-                  [sg.Image(filename='', key='image'), [sg.Text('NOT ACTIVE', key='primed', font='Helvetica 30'),
-                                                        sg.Text('NO ONE FOUND', key='class', font='Helvetica 30')]]]
+        layout = [
+            [
+                sg.Column(
+                    [[sg.Image(filename='', key='image')]]
+                ),
+                sg.Column(
+                    [
+                        [sg.Button('0', key='counter', size=(10, 3), font='Helvetica 45')],
+                        [sg.Button('N/A', key='primed', size=(10, 2), font='Helvetica 30')],
+                        [sg.Button('N/A', key='class', size=(10, 2), font='Helvetica 30')]
+                    ]
+                )
+            ]
+        ]
         # create the window and show it without the plot
         self.window = sg.Window('Pushup Lockscreen', layout, no_titlebar=True, location=(0, 0), size=(800, 600))
         self.landmark_camera = PreprocessorVideo()
         self.inference_engine = Inference()
-        self.fig = plt.figure()
-        ax = self.fig.add_subplot(111)
-        ax.set_ylim(0, 2)
-        self.line, = ax.plot(range(250), [0] * 250, 'b-')
-        self.text = ax.text(0.1, 0.1, 'text', transform=ax.transAxes, fontsize=50)
         self.predictions = deque(maxlen=250)
-        self.fig.canvas.draw()
-        self.fig.canvas.flush_events()
-        plt.show()
         self.counter = PushupCounter()
 
         print(matplotlib.get_backend())
@@ -88,12 +95,30 @@ class PushupLockscreen:
             # Counter logic
             self.counter.update_counter(prediction)
 
-            # Print or plot prediction
-            imgbytes = cv2.imencode('.png', frame)[1].tobytes()
-            self.window['counter'].update(f'Pushups: {self.counter.count}')
-            self.window['primed'].update(f'PRIMED {self.counter.primed}')
-            self.window['class'].update(f'CLASS: {prediction}')
-            self.window['image'].update(data=imgbytes)
+            self.update_gui(frame, prediction)
+
+    def update_gui(self, frame, prediction):
+        # Print or plot prediction
+        imgbytes = cv2.imencode('.png', frame)[1].tobytes()
+        self.window['counter'].update(self.counter.count)
+        if self.counter.primed:
+            primed_text = "ACTIVE"
+            primed_color = GREEN
+        else:
+            primed_text = "INACTIVE"
+            primed_color = RED
+        if prediction == 0:
+            button_color = WHITE
+            prediction_text = "NO PRSN"
+        elif prediction == 1:
+            button_color = RED
+            prediction_text = 'DOWN'
+        else:
+            button_color = GREEN
+            prediction_text = 'UP'
+        self.window['primed'].update(primed_text, button_color=primed_color)
+        self.window['class'].update(prediction_text, button_color=button_color)
+        self.window['image'].update(data=imgbytes)
 
 
 if __name__ == '__main__':
