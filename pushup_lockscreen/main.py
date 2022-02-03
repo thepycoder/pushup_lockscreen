@@ -2,7 +2,8 @@ import PySimpleGUI as sg
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
-import matplotlib
+
+import sys
 import cv2
 from paramiko.client import SSHClient
 
@@ -45,6 +46,14 @@ class LockscreenClient:
         self.client.connect(hostname='beast.local', username='victor')
 
     def lock(self):
+        # First, check if mic is used by a client, which means I'm in a video call (muted or not will show up)
+        # This is a precaution
+        stdin, stdout, stderr = self.client.exec_command('pactl list sink-inputs')
+        if stdout:
+            print("Detecting Mic in Use, BAILING")
+            sys.exit(0)
+
+        # Then lock the screen
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 i3lock &')
 
     def unlock(self):
