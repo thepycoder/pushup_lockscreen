@@ -54,7 +54,9 @@ class LockscreenClient:
             sys.exit(0)
 
         # Then lock the screen
-        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 i3lock &')
+        stdin, stdout, stderr = self.client.exec_command(
+            'DISPLAY=:0 i3lock -i /home/victor/Projects/clearML/pushup_lockscreen/images/screensaver.png'
+        )
 
     def unlock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
@@ -152,5 +154,8 @@ class PushupLockscreen:
 
 
 if __name__ == '__main__':
+    # Wake the screen
+    os.system('xscreensaver-command -deactivate')
+    # Engage the camera!
     plck = PushupLockscreen()
     plck.run()
