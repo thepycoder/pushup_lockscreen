@@ -1,7 +1,9 @@
+import PySimpleGUI as sg
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 import matplotlib
+import cv2
 
 from inference import Inference
 from landmark_online import PreprocessorVideo
@@ -36,6 +38,12 @@ class PushupCounter:
 
 class PushupLockscreen:
     def __init__(self):
+        sg.theme('Black')
+        # define the window layout
+        layout = [[sg.Text('Pushups: 0', size=(40, 1), justification='center', font='Helvetica 20')],
+                  [sg.Image(filename='', key='image')]]
+        # create the window and show it without the plot
+        self.window = sg.Window('Pushup Lockscreen', layout, no_titlebar=True, location=(0, 0), size=(800, 600))
         self.landmark_camera = PreprocessorVideo()
         self.inference_engine = Inference()
         self.fig = plt.figure()
@@ -53,6 +61,11 @@ class PushupLockscreen:
 
     def run(self):
         while True:
+
+            event, values = self.window.read(timeout=20)
+            if event == 'Exit' or event == sg.WIN_CLOSED:
+                return
+
             # Run blazepose on next frame
             frame, mediapipe_landmarks = self.landmark_camera.get_next_frame()
             if frame is None:
@@ -75,13 +88,8 @@ class PushupLockscreen:
             self.counter.update_counter(prediction)
 
             # Print or plot prediction
-            self.predictions.append(prediction)
-            prediction_list = self.predictions
-            prediction_list.extend([0] * (250 - len(prediction_list)))
-            self.line.set_ydata(prediction_list)
-            self.text.set_text(f'Pushups: {self.counter.count}')
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
+            imgbytes = cv2.imencode('.png', frame)[1].tobytes()
+            self.window['image'].update(data=imgbytes)
 
 
 if __name__ == '__main__':

@@ -36,11 +36,11 @@ class PreprocessorVideo:
             return None, None
         # Draw 2d skeleton
         frame = self.renderer.draw(frame, body)
-        key = self.renderer.waitKey(delay=1)
-        if key == 27 or key == ord('q'):
-            self.renderer.exit()
-            self.detector.exit()
-            return None, None
+        # key = self.renderer.waitKey(delay=1)
+        # if key == 27 or key == ord('q'):
+        #     self.renderer.exit()
+        #     self.detector.exit()
+        #     return None, None
 
         # Return the frame and the landmarks
         return frame, body
