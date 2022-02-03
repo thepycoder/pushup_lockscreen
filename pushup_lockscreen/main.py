@@ -5,6 +5,7 @@ from collections import deque
 import time
 import sys
 import cv2
+import os
 from paramiko.client import SSHClient
 
 from inference import Inference
