@@ -49,7 +49,7 @@ class LockscreenClient:
 
     def unlock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
-        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key KP_Enter')
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key Return')
 
 
 class PushupLockscreen:
