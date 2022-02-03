@@ -18,12 +18,13 @@ class PushupCounter:
         self.count = 0
 
     def trigger_logic(self):
-        print(sum(self.history[:10]))
-        if len(self.history) > 10 and sum(self.history[:10]) == 20:
+        if self.history[-1] == 0:
+            self.primed = False
+        if len(self.history) > 10 and sum(self.history[-10:]) == 20:
             print('Primed!')
             self.primed = True
         if self.primed:
-            if self.history[-1] == 2 and self.history[-2] == 1:
+            if self.history[-1] == 2 and sum(self.history[-6:-1]) == 5:
                 print("Pushup Detected!")
                 self.count += 1
         print(f'Current count: {self.count}')
@@ -35,12 +36,14 @@ class PushupCounter:
 
 class PushupLockscreen:
     def __init__(self):
-        self.landmark_camera = PreprocessorVideo()
+        self.landmark_camera = \
+            PreprocessorVideo(source='/home/victor/Projects/clearML/pushup_lockscreen/scripts/spedup_rescaled_2.mp4')
         self.inference_engine = Inference()
         self.fig = plt.figure()
         ax = self.fig.add_subplot(111)
         ax.set_ylim(0, 2)
         self.line, = ax.plot(range(250), [0] * 250, 'b-')
+        self.text = ax.text(0.1, 0.1, 'text', transform=ax.transAxes, fontsize=50)
         self.predictions = deque(maxlen=250)
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
@@ -64,18 +67,20 @@ class PushupLockscreen:
                 selected_landmarks = select_landmarks(landmarks, global_config.selected_keypoints)
 
                 # Run inference on selected landmarks
-                prediction = self.inference_engine.predict(selected_landmarks)
+                prediction = self.inference_engine.predict(selected_landmarks)[0] + 1
 
-                # Counter logic
-                self.counter.update_counter(prediction)
             else:
-                prediction = [-1]
+                prediction = 0
+
+            # Counter logic
+            self.counter.update_counter(prediction)
 
             # Print or plot prediction
             self.predictions.append(prediction)
-            prediction_list = [x[0] + 1 for x in list(self.predictions)]
+            prediction_list = self.predictions
             prediction_list.extend([0] * (250 - len(prediction_list)))
             self.line.set_ydata(prediction_list)
+            self.text.set_text(f'Pushups: {self.counter.count}')
             self.fig.canvas.draw()
             self.fig.canvas.flush_events()
 

@@ -1,11 +1,11 @@
-from BlazeposeDepthaiEdge import BlazeposeDepthai
+from BlazeposeDepthai import BlazeposeDepthai
 from BlazeposeRenderer import BlazeposeRenderer
 
 
 class PreprocessorVideo:
-    def __init__(self):
+    def __init__(self, source='rgb'):
         self.detector = BlazeposeDepthai(
-            input_src='rgb',
+            input_src=source,
             pd_score_thresh=0.5,
             lm_score_thresh=0.5,
             pd_model=None,
