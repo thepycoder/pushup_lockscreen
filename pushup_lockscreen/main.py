@@ -36,8 +36,7 @@ class PushupCounter:
 
 class PushupLockscreen:
     def __init__(self):
-        self.landmark_camera = \
-            PreprocessorVideo(source='/home/victor/Projects/clearML/pushup_lockscreen/scripts/spedup_rescaled_2.mp4')
+        self.landmark_camera = PreprocessorVideo()
         self.inference_engine = Inference()
         self.fig = plt.figure()
         ax = self.fig.add_subplot(111)

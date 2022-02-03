@@ -1,4 +1,4 @@
-from BlazeposeDepthai import BlazeposeDepthai
+from BlazeposeDepthaiEdge import BlazeposeDepthai
 from BlazeposeRenderer import BlazeposeRenderer
 
 
