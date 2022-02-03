@@ -40,8 +40,9 @@ class PushupLockscreen:
     def __init__(self):
         sg.theme('Black')
         # define the window layout
-        layout = [[sg.Text('Pushups: 0', size=(40, 1), justification='center', font='Helvetica 20')],
-                  [sg.Image(filename='', key='image')]]
+        layout = [[sg.Text('Pushups: 0', key='counter', size=(40, 1), justification='center', font='Helvetica 20')],
+                  [sg.Image(filename='', key='image'), [sg.Text('NOT ACTIVE', key='primed'),
+                                                        sg.Text('NO ONE FOUND', key='class')]]]
         # create the window and show it without the plot
         self.window = sg.Window('Pushup Lockscreen', layout, no_titlebar=True, location=(0, 0), size=(800, 600))
         self.landmark_camera = PreprocessorVideo()
@@ -89,6 +90,9 @@ class PushupLockscreen:
 
             # Print or plot prediction
             imgbytes = cv2.imencode('.png', frame)[1].tobytes()
+            self.window['counter'].update(f'Pushups: {self.counter.count}')
+            self.window['primed'].update(f'PRIMED {self.counter.primed}')
+            self.window['class'].update(f'CLASS: {prediction}')
             self.window['image'].update(data=imgbytes)
 
 
