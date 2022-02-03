@@ -2,7 +2,7 @@ import PySimpleGUI as sg
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
-
+import time
 import sys
 import cv2
 from paramiko.client import SSHClient
@@ -58,6 +58,7 @@ class LockscreenClient:
 
     def unlock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
+        time.sleep(0.2)
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key Return')
 
 
