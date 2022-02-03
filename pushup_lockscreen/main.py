@@ -40,9 +40,9 @@ class PushupLockscreen:
     def __init__(self):
         sg.theme('Black')
         # define the window layout
-        layout = [[sg.Text('Pushups: 0', key='counter', size=(40, 1), justification='center', font='Helvetica 20')],
-                  [sg.Image(filename='', key='image'), [sg.Text('NOT ACTIVE', key='primed'),
-                                                        sg.Text('NO ONE FOUND', key='class')]]]
+        layout = [[sg.Text('Pushups: 0', key='counter', size=(40, 1), justification='center', font='Helvetica 35')],
+                  [sg.Image(filename='', key='image'), [sg.Text('NOT ACTIVE', key='primed', font='Helvetica 30'),
+                                                        sg.Text('NO ONE FOUND', key='class', font='Helvetica 30')]]]
         # create the window and show it without the plot
         self.window = sg.Window('Pushup Lockscreen', layout, no_titlebar=True, location=(0, 0), size=(800, 600))
         self.landmark_camera = PreprocessorVideo()
