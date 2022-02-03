@@ -26,7 +26,7 @@ class PushupCounter:
             print('Primed!')
             self.primed = True
         if self.primed:
-            if self.history[-1] == 2 and sum(self.history[-6:-1]) == 5:
+            if self.history[-1] == 2 and sum(self.history[-4:-1]) == 3:
                 print("Pushup Detected!")
                 self.count += 1
         print(f'Current count: {self.count}')
