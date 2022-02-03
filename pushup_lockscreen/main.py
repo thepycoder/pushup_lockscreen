@@ -74,14 +74,14 @@ class PushupLockscreen:
             # Counter logic
             self.counter.update_counter(prediction)
 
-            # Print or plot prediction
+            """# Print or plot prediction
             self.predictions.append(prediction)
             prediction_list = self.predictions
             prediction_list.extend([0] * (250 - len(prediction_list)))
             self.line.set_ydata(prediction_list)
             self.text.set_text(f'Pushups: {self.counter.count}')
             self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
+            self.fig.canvas.flush_events()"""
 
 
 if __name__ == '__main__':
