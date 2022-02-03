@@ -78,7 +78,7 @@ class PushupLockscreen:
         self.counter = PushupCounter()
 
         self.lockscreen = LockscreenClient()
-        self.required_pushups = 1
+        self.required_pushups = 5
 
     def run(self):
         self.lockscreen.lock()
