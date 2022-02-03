@@ -1,3 +1,4 @@
+import imgaug as ia
 from imgaug import augmenters as iaa
 from imgaug.augmentables import Keypoint, KeypointsOnImage
 import cv2
@@ -5,13 +6,12 @@ import numpy as np
 
 
 class LandMarkAugmentation:
-    def __init__(self):
+    def __init__(self, seed=42):
+        ia.seed(seed)
         self.imgaug_pipeline = self.create_imgaug()
-        self.keypoints_to_keep = [2,5,11,12,13,14,15,16,23,24,25,26,27,28]
         self.max_jitter_multiplier = 5
         self.jitter_coef = 10 / self.max_jitter_multiplier  # absolute maximum deviation in pixels
 
-    
     def get_jitter_normal(self):
         jitter = np.random.normal()
         if jitter > self.max_jitter_multiplier:
@@ -20,7 +20,6 @@ class LandMarkAugmentation:
             jitter = -self.max_jitter_multiplier
         return jitter
 
-    
     def create_imgaug(self):
         seq = iaa.Sequential([
             iaa.Crop(px=(0, 16)), # crop images from each side by 0 to 16px (randomly chosen)
@@ -33,7 +32,6 @@ class LandMarkAugmentation:
             )
         ])
         return seq
-    
 
     def get_augmented_batch(self, image_list, landmark_list):
         original_keypoints = []
@@ -42,18 +40,16 @@ class LandMarkAugmentation:
         for image, landmarks_array in zip(image_list, landmark_list):
             original_keypoints_instance = []
             jittered_keypoints_instance = []
-            for i, point in enumerate(landmarks_array[:33,:2]):
-                # First Filter
-                if i in self.keypoints_to_keep:
-                    # Then augment using jitter
-                    original_keypoints_instance.append(
-                        Keypoint(x=point[0],
-                                 y=point[1])
-                    )
-                    jittered_keypoints_instance.append(
-                        Keypoint(x=point[0] + self.get_jitter_normal() * self.jitter_coef,
-                                 y=point[1] + self.get_jitter_normal() * self.jitter_coef)
-                    )
+            for point in landmarks_array:
+                # Then augment using jitter
+                original_keypoints_instance.append(
+                    Keypoint(x=point[0],
+                             y=point[1])
+                )
+                jittered_keypoints_instance.append(
+                    Keypoint(x=point[0] + self.get_jitter_normal() * self.jitter_coef,
+                             y=point[1] + self.get_jitter_normal() * self.jitter_coef)
+                )
             original_kpsoi = KeypointsOnImage(original_keypoints_instance, shape=image.shape)
             jittered_kpsoi = KeypointsOnImage(jittered_keypoints_instance, shape=image.shape)
             # keypoint_image = kps.draw_on_image(image, size=7)
@@ -61,7 +57,7 @@ class LandMarkAugmentation:
             # break
             original_keypoints.append(original_kpsoi)
             jittered_keypoints.append(jittered_kpsoi)
-        
+
         # Now run the actualy augmentation
         image_list_aug, keypoints_aug = self.imgaug_pipeline(images=image_list, keypoints=jittered_keypoints)
 
@@ -75,12 +71,5 @@ class LandMarkAugmentation:
         #     cv2.imwrite(f'augmented_images/test_keypoints_{i}.jpg', result)
 
 
-# for batch_idx in range(1000):
-#     # 'images' should be either a 4D numpy array of shape (N, height, width, channels)
-#     # or a list of 3D numpy arrays, each having shape (height, width, channels).
-#     # Grayscale images must have shape (height, width, 1) each.
-#     # All images must have numpy's dtype uint8. Values are expected to be in
-#     # range 0-255.
-#     images = load_batch(batch_idx)
-#     images_aug = seq(images=images)
-#     train_on_images(images_aug)
+augmenter = LandMarkAugmentation()
+augmented_images, augmented_landmarks = augmenter.get_augmented_batch([np.zeros((300, 300, 3))]*20, np.zeros((20, 14, 2)))

@@ -8,14 +8,16 @@ import cv2
 import os
 
 
-class Preprocessor:
+class PreprocessorImage:
     def __init__(self, image_dataset_path, landmark_dataset_path, calibration_image):
         self.detector = BlazeposeDepthai(
-            input_src=calibration_image, 
-            pd_model=None,
-            lm_model='/home/pi/pushup_lockscreen/depthai/models/pose_landmark_heavy_sh4.blob',
-            smoothing=False,   
-            xyz=False,            
+            input_src=calibration_image,
+            pd_score_thresh=0.5,
+            lm_score_thresh=0.5,
+            pd_model='depthai/models/pose_detection_sh4.blob',
+            lm_model='depthai/models/pose_landmark_heavy_sh4.blob',
+            smoothing=False,
+            xyz=False,
             crop=False,
             internal_fps=None,
             internal_frame_height=300,
@@ -25,16 +27,14 @@ class Preprocessor:
         )
 
         self.renderer = BlazeposeRenderer(
-            self.detector, 
-            show_3d=False, 
+            self.detector,
+            show_3d=False,
             output=None
         )
 
         self.image_dataset_path = Path(image_dataset_path)
         self.landmark_dataset_path = Path(landmark_dataset_path)
 
-        self.augmenter = LandMarkAugmentation()
-    
     def process_images(self):
         print(f"Walking {self.image_dataset_path}")
         frames = []
@@ -52,19 +52,18 @@ class Preprocessor:
                     frame, body = self.detector.next_frame()
                     frames.append(frame)
                     bodies.append(body)
-                    np.savetxt(f"{self.landmark_dataset_path / label / os.path.splitext(image)[0]}.csv", body.landmarks, delimiter=",")
+                    np.savetxt(f"{self.landmark_dataset_path / label / os.path.splitext(image)[0]}.csv",
+                               body.landmarks, delimiter=",")
                     # Body is a mediapipe body type
                     # frame = self.renderer.draw(frame, body)
                     # cv2.imwrite(str(new_save_location / image), frame)
 
-        # self.augmenter.get_augmented_batch(frames, bodies)
-    
     def cleanup(self):
         self.renderer.exit()
         self.detector.exit()
 
 
 if __name__ == '__main__':
-    preprocessor = Preprocessor('raw_data', 'landmarks', 'raw_data/pushup_up/1.jpg')
+    preprocessor = PreprocessorImage('raw_data', 'landmarks', 'raw_data/pushup_up/1.jpg')
     preprocessor.process_images()
     preprocessor.cleanup()
