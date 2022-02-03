@@ -20,5 +20,6 @@ raw_data
 
 preview.jpg
 landmarks
+augmented_images
 
 **/__pycache__/**
