@@ -52,13 +52,15 @@ class LockscreenClient:
         stdin, stdout, stderr = self.client.exec_command('pactl list source-outputs')
         if stdout.readlines():
             print("Detecting Mic in Use, BAILING")
-            sys.exit(0)
+            return False
 
         time.sleep(0.2)
         # Then lock the screen
         stdin, stdout, stderr = self.client.exec_command(
             'DISPLAY=:0 i3lock -i /home/victor/Projects/clearML/pushup_lockscreen/images/screensaver.png'
         )
+
+        return True
 
     def unlock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
@@ -95,7 +97,9 @@ class PushupLockscreen:
         self.required_pushups = 5
 
     def run(self):
-        self.lockscreen.lock()
+        locked = self.lockscreen.lock()
+        if not locked:
+            return
         while True:
 
             event, values = self.window.read(timeout=20)
