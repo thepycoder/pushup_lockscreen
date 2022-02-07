@@ -49,7 +49,7 @@ class LockscreenClient:
     def lock(self):
         # First, check if mic is used by a client, which means I'm in a video call (muted or not will show up)
         # This is a precaution
-        stdin, stdout, stderr = self.client.exec_command('pactl list sink-inputs')
+        stdin, stdout, stderr = self.client.exec_command('pactl list source-outputs')
         if stdout.readlines():
             print("Detecting Mic in Use, BAILING")
             sys.exit(0)
