@@ -54,10 +54,6 @@ class LockscreenClient:
             print("Detecting Mic in Use, BAILING")
             sys.exit(0)
 
-        # Then move the mouse to make sure the screen is on
-        time.sleep(0.2)
-        stdin, stdout, stderr = self.client.exec_command('xdotool mousemove_relative 0 100')
-
         time.sleep(0.2)
         # Then lock the screen
         stdin, stdout, stderr = self.client.exec_command(
@@ -161,7 +157,9 @@ class PushupLockscreen:
 
 if __name__ == '__main__':
     # Wake the screen
-    os.system('xscreensaver-command -deactivate')
+    os.system('xset -display :0 dpms force on')
     # Engage the camera!
     plck = PushupLockscreen()
     plck.run()
+    # Disable the screen again, no need for it to stay on
+    os.system('xset -display :0 dpms force off')
