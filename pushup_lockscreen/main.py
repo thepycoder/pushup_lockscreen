@@ -61,6 +61,14 @@ class LockscreenClient:
         )
 
         return True
+    
+    def send_backspace(self):
+        # We type something and then backspace it again so the circle spins, which I find funny
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type v')
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key BackSpace')
+        # Then we still have to backspace whatever I might have put in
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key BackSpace')
+
 
     def unlock(self):
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
@@ -133,6 +141,9 @@ class PushupLockscreen:
             # Check if unlock criteria is met
             if self.counter.count >= self.required_pushups:
                 break
+            
+            # Send a backspace to be sure I can't fill in the password
+            self.lockscreen.send_backspace()
         self.lockscreen.unlock()
 
     def update_gui(self, frame, prediction):
@@ -160,10 +171,12 @@ class PushupLockscreen:
 
 
 if __name__ == '__main__':
-    # Wake the screen
-    os.system('xset -display :0 dpms force on')
+    os.environ['DISPLAY'] = ':0'
     # Engage the camera!
     plck = PushupLockscreen()
+    # Wake the screen
+    os.system('xset -display :0 dpms force on')
+    # Run the system
     plck.run()
     # Disable the screen again, no need for it to stay on
     os.system('xset -display :0 dpms force off')
