@@ -134,16 +134,19 @@ class ModelTrainer:
             return
 
         model.fit(X_train, y_train)
+
+        # Evaluate model accuracy and report it to ClearML
         self.task.get_logger().report_scalar(self.params['estimator'], 'ROC AUC Test',
                                              roc_auc_score(y_test, model.predict(X_test)), 0)
         self.task.get_logger().report_scalar(self.params['estimator'], 'ROC AUC Train',
                                              roc_auc_score(y_train,model.predict(X_train)), 0)
         ConfusionMatrixDisplay.from_estimator(model, X_test, y_test)
         plt.show()
+        # Save the model file
         joblib.dump(model, 'model.pkl', compress=True)
         self.task.upload_artifact(name='model_remote', artifact_object='model.pkl')
 
-    def train_model(self):
+    def run(self):
         # Landmarks and images will be stored in the instance itself for potential later retrieval
         landmarks, landmark_labels, images, image_labels = self.get_landmarks()
         selected_landmarks = select_landmarks(landmarks, self.selected_keypoints)
@@ -154,4 +157,4 @@ class ModelTrainer:
 
 if __name__ == '__main__':
     trainer = ModelTrainer()
-    trainer.train_model()
+    trainer.run()
