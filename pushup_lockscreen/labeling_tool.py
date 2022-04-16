@@ -11,11 +11,13 @@ from threading import Thread, local
 import cv2
 import depthai
 import numpy as np
-from clearml import Dataset
+from clearml import Dataset, Task
 from playsound import playsound
 import speech_recognition as sr
 
-from config import CLEARML_PROJECT, CLEARML_DATASET_NAME
+from pushup_lockscreen.global_config import CLEARML_PROJECT, CLEARML_RAW_DATASET_NAME
+
+task = Task.init(project_name='pushup_lockscreen', task_name='preprocessing', reuse_last_task_id=False)
 
 
 class ImageCapture(Thread):
@@ -115,7 +117,12 @@ def callback(recognizer, audio):
 
 
 def update_clearml_dataset(save_path):
-    dataset = Dataset.get(dataset_project=CLEARML_PROJECT, dataset_name=CLEARML_DATASET_NAME, auto_create=True, writable_copy=True)
+    dataset = Dataset.get(
+        dataset_project=CLEARML_PROJECT,
+        dataset_name=CLEARML_RAW_DATASET_NAME,
+        auto_create=True,
+        writable_copy=True
+    )
     dataset.add_files(path=save_path, dataset_path=save_path)
     dataset.finalize(auto_upload=True)
 
@@ -155,7 +162,7 @@ if __name__ == '__main__':
     # calling this function requests that the background listener stop listening
     stop_listening(wait_for_stop=False)
 
-    # Update the clearml dataset so we have a new version to keep track of
+    # Update the clearml dataset, so we have a new version to keep track of
     update_clearml_dataset(args.save_path)
 
     # Call of the camera

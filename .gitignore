@@ -23,5 +23,7 @@ landmarks
 augmented_images
 
 images
+*.csv
+*.pkl
 
 **/__pycache__/**
