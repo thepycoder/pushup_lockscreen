@@ -71,7 +71,7 @@ class LockscreenClient:
 
 
     def unlock(self):
-        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_pc_password>')
+        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type <your_password_here>')
         time.sleep(0.2)
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key Return')
 
