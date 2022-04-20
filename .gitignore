@@ -23,5 +23,6 @@ landmarks
 augmented_images
 
 images
+*.mpg
 
 **/__pycache__/**
