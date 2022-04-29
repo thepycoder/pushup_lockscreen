@@ -24,5 +24,7 @@ augmented_images
 
 images
 *.mpg
+*.csv
+*.pkl
 
 **/__pycache__/**

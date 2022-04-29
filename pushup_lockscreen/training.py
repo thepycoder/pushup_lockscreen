@@ -17,10 +17,11 @@ from preprocessing import imgaug_to_numpy, select_landmarks
 from augmentation import LandMarkAugmentation
 import global_config
 
+task = Task.init(project_name='pushup_lockscreen', task_name='training', reuse_last_task_id=False)
+
 
 class ModelTrainer:
     def __init__(self):
-        self.task = Task.init(project_name='pushup_training', task_name='training', reuse_last_task_id=False)
         self.params = {
             'test_size': 0.2,
             'seed': 42,
@@ -44,7 +45,7 @@ class ModelTrainer:
                 'learning_rate_init': 0.001
             }
         }
-        self.selected_keypoints = global_config.selected_keypoints
+        self.selected_keypoints = global_config.SELECTED_KEYPOINTS
         # Get the path to the landmarks, expect only csv files
         self.landmark_path = '../landmarks'
         # Get the path to the raw_data, expect only jpg files
@@ -52,7 +53,7 @@ class ModelTrainer:
         # The amount of time the whole batch will be augmented and added to the original
         self.augmentation_ratio = 10
         self.enable_debug_images = True
-        self.task.connect(self)
+        task.connect(self)
 
         self.augmenter = LandMarkAugmentation(self.params['seed'])
 
@@ -89,7 +90,7 @@ class ModelTrainer:
             y_augmented = np.append(y_augmented, y)
         if self.enable_debug_images:
             keypoint_image = augmented_landmarks[0].draw_on_image(augmented_images[0], size=7)
-            self.task.get_logger().report_image('Augmentation Debug Images', f'{train_test} - {y[0]}',
+            task.get_logger().report_image('Augmentation Debug Images', f'{train_test} - {y[0]}',
                                                 image=keypoint_image[..., ::-1])
         return X_augmented, y_augmented
 
@@ -109,7 +110,7 @@ class ModelTrainer:
         # Only fit the scaler on training data! Otherwise knowledge of test data will leak into training set
         scaler.fit(X_train_augmented)
         joblib.dump(scaler, 'scaler.pkl', compress=True)
-        self.task.upload_artifact(name='scaler_remote', artifact_object='scaler.pkl')
+        task.upload_artifact(name='scaler_remote', artifact_object='scaler.pkl')
         X_train_augmented = scaler.transform(X_train_augmented)
         X_test_augmented = scaler.transform(X_test_augmented)
 
@@ -134,17 +135,20 @@ class ModelTrainer:
             return
 
         model.fit(X_train, y_train)
-
-        # Evaluate model accuracy and report it to ClearML
-        self.task.get_logger().report_scalar(self.params['estimator'], 'ROC AUC Test',
-                                             roc_auc_score(y_test, model.predict(X_test)), 0)
-        self.task.get_logger().report_scalar(self.params['estimator'], 'ROC AUC Train',
-                                             roc_auc_score(y_train,model.predict(X_train)), 0)
+        task.get_logger().report_scalar(title=self.params['estimator'],
+                                        series='ROC AUC Test',
+                                        value=roc_auc_score(y_test, model.predict(X_test)),
+                                        iteration=0)
+        task.get_logger().report_scalar(title=self.params['estimator'],
+                                        series='ROC AUC Train',
+                                        value=roc_auc_score(y_train, model.predict(X_train)),
+                                        iteration=0)
         ConfusionMatrixDisplay.from_estimator(model, X_test, y_test)
+        plt.title('Confusion Matrix')
         plt.show()
         # Save the model file
         joblib.dump(model, 'model.pkl', compress=True)
-        self.task.upload_artifact(name='model_remote', artifact_object='model.pkl')
+        # task.upload_artifact(name='model_remote', artifact_object='model.pkl')
 
     def run(self):
         # Landmarks and images will be stored in the instance itself for potential later retrieval

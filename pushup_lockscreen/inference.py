@@ -30,6 +30,6 @@ class Inference:
 if __name__ == '__main__':
     inference_engine = Inference()
     landmarks = np.array([np.loadtxt('../landmarks/pushup_up/0.csv', delimiter=',')])
-    selected_landmarks = select_landmarks(landmarks, global_config.selected_keypoints)
+    selected_landmarks = select_landmarks(landmarks, global_config.SELECTED_KEYPOINTS)
     predicted = inference_engine.predict(selected_landmarks)
     print(predicted)

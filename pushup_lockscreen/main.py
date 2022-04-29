@@ -9,7 +9,7 @@ import os
 from paramiko.client import SSHClient
 
 from inference import Inference
-from landmark_online import PreprocessorVideo
+from landmark_online import PreprocessorLandmarks
 from preprocessing import select_landmarks
 import global_config
 
@@ -71,7 +71,7 @@ class LockscreenClient:
 
 
     def unlock(self):
-        stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool type fiehair5')
+        stdin, stdout, stderr = self.client.exec_command(f'DISPLAY=:0 xdotool type {os.environ.get("LOCKSCREEN_PASSWORD")}')
         time.sleep(0.2)
         stdin, stdout, stderr = self.client.exec_command('DISPLAY=:0 xdotool key Return')
 
@@ -96,7 +96,7 @@ class PushupLockscreen:
         ]
         # create the window and show it without the plot
         self.window = sg.Window('Pushup Lockscreen', layout, no_titlebar=True, location=(0, 0), size=(800, 600))
-        self.landmark_camera = PreprocessorVideo()
+        self.landmark_camera = PreprocessorLandmarks()
         self.inference_engine = Inference()
         self.predictions = deque(maxlen=250)
         self.counter = PushupCounter()
@@ -124,7 +124,7 @@ class PushupLockscreen:
                 landmarks = np.array([mediapipe_landmarks.landmarks])
 
                 # Preprocess landmarks (selecting subset of landmarks)
-                selected_landmarks = select_landmarks(landmarks, global_config.selected_keypoints)
+                selected_landmarks = select_landmarks(landmarks, global_config.SELECTED_KEYPOINTS)
 
                 # Run inference on selected landmarks
                 prediction = self.inference_engine.predict(selected_landmarks)[0] + 1
