@@ -1,6 +1,6 @@
 # Pushup Lockscreen
 
-![pushup lockscreen](images/final_result_small.gif)
+![pushup lockscreen](img/final_result_small.gif)
 
 ## Quick overview
 
